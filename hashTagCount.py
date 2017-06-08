@@ -110,7 +110,7 @@ expandTable("other_tags", myConnection)
 #for current_tag in crawled_tags:
 #tag_dict[current_tag] = {}
 
-doQuery(myConnection, "false") #set to true, if you want to write into the DB
+doQuery(myConnection, "true") #set to true, if you want to write into the DB
 
 #checkNullValues(myConnection)
 writeInFile()
