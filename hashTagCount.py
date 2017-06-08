@@ -53,7 +53,6 @@ def doQuery(conn, writeIntoDB):
     #sys.exit()
     for entry in entries:
  
- 
         if entry[1] not in tag_dict:
             tag_dict[entry[1]] = {}
         #get all hashtags
@@ -62,10 +61,18 @@ def doQuery(conn, writeIntoDB):
         #print tag_list
         all_hashtags = []
         
+        
         #remove remaining text from hashtags
         for tag in tag_list:
+ 
             helper_list = tag.split(" ", 1)
             helper_list[0] = helper_list[0].lower().translate(None, string.punctuation)
+            
+            #remove all the newlines
+            if "\n" in helper_list[0]:
+                helper_list = helper_list[0].split("\n", 1)
+                #print helper_list[0]
+
             if entry[1] != helper_list[0]:
                 #print "we are unequal"
                 #print current_tag
@@ -84,7 +91,7 @@ def doQuery(conn, writeIntoDB):
             final_string += addtag + " "
 
         if writeIntoDB == "true":
-            print "write in DB"
+            #print "write in DB"
             cur.execute("UPDATE tweets SET other_tags='" + final_string + "' WHERE id='" + str(entry[0]) + "'")
         
 '''def checkNullValues(conn):
