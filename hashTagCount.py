@@ -41,16 +41,18 @@ def expandTable(col_name, conn):
 def doQuery(conn, writeIntoDB):
     cur = conn.cursor()
 
-    cur.execute("SELECT id, Hashtag, Text FROM tweets")
+    cur.execute("SELECT id, Hashtag, Text, created_at FROM tweets")
     #cur.execute("SELECT id, Hashtag, Text FROM tweets WHERE id = 269")
     
     entries = cur.fetchall()
-
+    
+    #checkDate(entries)
     
     #print entries[0][0] #id
     #print entries[0][1] #HashTag
     #print entries[0][2] #Text
     #sys.exit()
+
     for entry in entries:
  
         if entry[1] not in tag_dict:
@@ -72,17 +74,20 @@ def doQuery(conn, writeIntoDB):
             if "\n" in helper_list[0]:
                 helper_list = helper_list[0].split("\n", 1)
                 #print helper_list[0]
-
+            #helper_list[0].replace("...", "")
             if entry[1] != helper_list[0]:
                 #print "we are unequal"
                 #print current_tag
                 #print helper_list[0].lower()
-                if helper_list[0] not in tag_dict[entry[1]]:
-                    #print "if"
-                    tag_dict[entry[1]][helper_list[0]] = 1
-                else:
-                    #print "else"
-                    tag_dict[entry[1]][helper_list[0]] += 1
+                
+                if helper_list[0] != '':
+                    if helper_list[0] not in tag_dict[entry[1]]:
+                        #print "if"
+                        tag_dict[entry[1]][helper_list[0]] = 1
+                    else:
+                        #print "else"
+                        tag_dict[entry[1]][helper_list[0]] += 1
+
                 all_hashtags.append('#' + helper_list[0])
             #else:
                 #print "check"
@@ -92,8 +97,9 @@ def doQuery(conn, writeIntoDB):
 
         if writeIntoDB == "true":
             #print "write in DB"
-            cur.execute("UPDATE tweets SET other_tags='" + final_string + "' WHERE id='" + str(entry[0]) + "'")
-        
+            cur.execute("UPDATE tweets SET other_tags='" + final_string + "' WHERE id='" + str(entry[0]) + "'")  
+    #checkAmountOfTweets(conn)
+            
 '''def checkNullValues(conn):
     cur = conn.cursor()
 
@@ -111,17 +117,61 @@ def readFromFile():
     with io.FileIO("HashTag_counts.txt", "r") as file:
         my_dict = pickle.load(file)
         #print my_dict["runtastic"]
+        
+def writeCSV():
+    print "Write # counts into csv files"
+    #test_dict = {k: v for k, v in tag_dict["gym"].iteritems() if v == 71}
+    #print test_dict
+    for key in tag_dict:
+        with io.FileIO(key + "_tags.csv", "w") as file:
+            #fieldnames = ['id', 'value']
+            w = csv.writer(file, )
+            #w.writerow({'id': 'value'})
+            w.writerow(['id', 'value'])
+            w.writerows(tag_dict[key].items())
+            
+def removeLowValues(threshold):
+    print "Removing all small values for better visualisation"
+    for key in tag_dict:
+        tag_dict[key] = {k: v for k, v in tag_dict[key].iteritems() if v >= threshold}
+        
+def checkDate(entries):
+    #print entries[0][3].date()
+    dates = {}
+    for entry in entries:
+        if entry[3].date() not in dates:
+            dates[entry[3].date()] = 1
+        else:
+            dates[entry[3].date()] += 1
+    print dates
+
+def checkAmountOfTweets(conn):
+    '''if tag_dict: #check if there are values in dict
+        for key in tag_dict:
+            print key
+            cur = conn.cursor()
+            cur.execute("SELECT id, Hashtag, Text, created_at FROM tweets")
+
+            entries = cur.fetchall()'''
+    cur = conn.cursor()
+    for key in tag_dict:
+        cur.execute("SELECT id FROM tweets WHERE HashTag = '" + key + "'")
+        entries = cur.fetchall()
+        print key, ": ", len(entries), " tweets"
+        
+        
+def clearDB(conn, hashtag):
+    cur = conn.cursor()
+    cur.execute("DELETE FROM tweets WHERE HashTag = '" + hashtag +"'")
 
 myConnection = MySQLdb.connect( host=hostname, user=username, passwd=password, db=database )
-expandTable("other_tags", myConnection)
-#for current_tag in crawled_tags:
-#tag_dict[current_tag] = {}
+#expandTable("other_tags", myConnection)
+#clearDB(myConnection, "runtastic")
+doQuery(myConnection, "false") #set to true, if you want to write into the DB
 
-doQuery(myConnection, "true") #set to true, if you want to write into the DB
+removeLowValues(50)
+writeCSV()
 
-#checkNullValues(myConnection)
-writeInFile()
-#readFromFile()
 myConnection.close()
 
 
