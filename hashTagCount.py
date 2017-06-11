@@ -17,6 +17,21 @@ database = 'twitterdata'
 #tag_dict[crawled_tag][other_tag] = counter of occurrences
 tag_dict = {}
 
+#key words for keyword based filtering
+keywords = {'healthy': ['health', 'healthy'], 
+    'active': ['doing', 'workout', 'playing', 
+                'hardwork', 'fit', 'active', 'fitness'], 
+    'passive': ['watching', 'beer', 'tv', 'couch', 
+                'lazy', 'superbowl', 'wm', 'cheering', 
+                'relax', 'relaxing'],
+    'food': ['food', 'eating', 'eat', 'meal', 'cook', 'cooking', 'yummy', 
+                'foodporn', 'dinner', 'breakfast', 'delicious', 'lunch',
+                'restaurant', 'veggies', 'fruit', 'vegetables', 'nom', 'nomnom',
+                'foodgasm', 'fruits', 'healthyfood']}
+                
+                
+keyword_counter = {}
+
 def expandTable(col_name, conn):
     cur = conn.cursor()
     
@@ -98,7 +113,7 @@ def doQuery(conn, writeIntoDB):
         if writeIntoDB == "true":
             #print "write in DB"
             cur.execute("UPDATE tweets SET other_tags='" + final_string + "' WHERE id='" + str(entry[0]) + "'")  
-    #checkAmountOfTweets(conn)
+    checkAmountOfTweets(conn)
             
 '''def checkNullValues(conn):
     cur = conn.cursor()
@@ -109,9 +124,9 @@ def doQuery(conn, writeIntoDB):
     
         
 def writeInFile():
-    print "Write # counts into txt file"
-    with io.FileIO("HashTag_counts.txt", "w") as file:
-        pickle.dump(tag_dict, file)
+    print "Write keyword_counter into txt file"
+    with io.FileIO("keyword_counter.txt", "w") as file:
+        pickle.dump(keyword_counter, file)
 
 def readFromFile():
     with io.FileIO("HashTag_counts.txt", "r") as file:
@@ -129,6 +144,7 @@ def writeCSV():
             #w.writerow({'id': 'value'})
             w.writerow(['id', 'value'])
             w.writerows(tag_dict[key].items())
+
             
 def removeLowValues(threshold):
     print "Removing all small values for better visualisation"
@@ -157,18 +173,59 @@ def checkAmountOfTweets(conn):
     for key in tag_dict:
         cur.execute("SELECT id FROM tweets WHERE HashTag = '" + key + "'")
         entries = cur.fetchall()
-        print key, ": ", len(entries), " tweets"
+        #print key, ": ", len(entries), " tweets"
         
         
 def clearDB(conn, hashtag):
     cur = conn.cursor()
     cur.execute("DELETE FROM tweets WHERE HashTag = '" + hashtag +"'")
-
+    
+def checkOnKeywords(conn):
+    for key in keywords:
+        for keyword in keywords[key]:
+            for tag_key in tag_dict:
+                helper_dict = {k: v for k, v in tag_dict[tag_key].iteritems() if keyword in k}
+                if tag_key not in keyword_counter:
+                    keyword_counter[tag_key] = {}
+                if key not in keyword_counter[tag_key]:
+                    # check if there are more than one occurences of food in this tweet
+                    '''if key == 'food':
+                        print helper_dict
+                        counts = checkFoodTag(helper_dict)        
+                    else:'''
+                    keyword_counter[tag_key][key] = len(helper_dict)
+                else:
+                    #if key == 'food':
+                        #print 'ok'''
+                    #else:
+                    keyword_counter[tag_key][key] += len(helper_dict)
+                  
+    # just for test output
+    for tag_key in keyword_counter:
+        for key in keyword_counter[tag_key]:
+            print tag_key, ": ", key, ": ", keyword_counter[tag_key][key]
+            
+    #writeInFile()
+'''def checkFoodTag(dict):
+    #print dict
+    counter = 0
+    ret_value = 0
+    for helper_key in dict:
+        for key in keywords['food']:
+            if key in dict[helper_key]:
+                counter += 1
+        if counter > 1:
+            #print counter
+            ret_value += counter
+            counter = 0
+    return ret_value  '''     
+            
+            
 myConnection = MySQLdb.connect( host=hostname, user=username, passwd=password, db=database )
 #expandTable("other_tags", myConnection)
-#clearDB(myConnection, "runtastic")
+#clearDB(myConnection, "workout")
 doQuery(myConnection, "false") #set to true, if you want to write into the DB
-
+checkOnKeywords(myConnection)
 removeLowValues(50)
 writeCSV()
 
