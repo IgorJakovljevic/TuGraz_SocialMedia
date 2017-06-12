@@ -1,4 +1,4 @@
-import nltk
+﻿import nltk
 import csv
 import pymysql
 import MySQLdb
@@ -12,7 +12,7 @@ import io
 hostname = 'localhost'
 username = 'root'
 password = ''
-database = 'twitterdata'
+database = 'twitterdata_4'
 
 #tag_dict[crawled_tag][other_tag] = counter of occurrences
 tag_dict = {}
@@ -23,11 +23,12 @@ keywords = {'healthy': ['health', 'healthy'],
                 'hardwork', 'fit', 'active', 'fitness'], 
     'passive': ['watching', 'beer', 'tv', 'couch', 
                 'lazy', 'superbowl', 'wm', 'cheering', 
-                'relax', 'relaxing'],
+                'relax', 'relaxing', 'mlb'],
     'food': ['food', 'eating', 'eat', 'meal', 'cook', 'cooking', 'yummy', 
                 'foodporn', 'dinner', 'breakfast', 'delicious', 'lunch',
                 'restaurant', 'veggies', 'fruit', 'vegetables', 'nom', 'nomnom',
-                'foodgasm', 'fruits', 'healthyfood']}
+                'foodgasm', 'fruits', 'healthyfood'],
+    'kind_of_sport': ['football', 'soccer', 'baseball', 'volleyball', 'basketball', 'golf', 'quidditch', 'swimming', 'running', 'cycling', 'boxing', 'lacrosse', 'cricket', 'tennis', 'athletics', 'rugby', 'hockey', 'skiing']}
                 
                 
 keyword_counter = {}
@@ -113,7 +114,7 @@ def doQuery(conn, writeIntoDB):
         if writeIntoDB == "true":
             #print "write in DB"
             cur.execute("UPDATE tweets SET other_tags='" + final_string + "' WHERE id='" + str(entry[0]) + "'")  
-    checkAmountOfTweets(conn)
+    #checkAmountOfTweets(conn)
             
 '''def checkNullValues(conn):
     cur = conn.cursor()
@@ -128,10 +129,11 @@ def writeInFile():
     with io.FileIO("keyword_counter.txt", "w") as file:
         pickle.dump(keyword_counter, file)
 
-def readFromFile():
-    with io.FileIO("HashTag_counts.txt", "r") as file:
+def readFromFile(filename):
+    with io.FileIO(filename, "r") as file:
         my_dict = pickle.load(file)
-        #print my_dict["runtastic"]
+        #print my_dict
+    return my_dict
         
 def writeCSV():
     print "Write # counts into csv files"
@@ -201,11 +203,12 @@ def checkOnKeywords(conn):
                     keyword_counter[tag_key][key] += len(helper_dict)
                   
     # just for test output
-    for tag_key in keyword_counter:
+    '''for tag_key in keyword_counter:
         for key in keyword_counter[tag_key]:
-            print tag_key, ": ", key, ": ", keyword_counter[tag_key][key]
-            
-    #writeInFile()
+            print tag_key, ": ", key, ": ", keyword_counter[tag_key][key]'''
+    #print keyword_counter        
+    writeInFile()
+    #readFromFile("keyword_counter.txt")
 '''def checkFoodTag(dict):
     #print dict
     counter = 0
@@ -219,16 +222,58 @@ def checkOnKeywords(conn):
             ret_value += counter
             counter = 0
     return ret_value  '''     
-            
+      
+def writeActivePassive():
+    category_dict = readFromFile("keyword_counter.txt")
+    #print category_dict
+    dict_list = []
+    #dict_list.append(['1', '2', '3'])
+    '''with io.FileIO("test.csv", "w") as file:
+        w = csv.writer(file, )
+        w.writerow(['Tag', 'active', 'passive'])
+        w.writerows(dict_list)
+    print dict_list'''
+    for key in category_dict:
+        dict_list.append([key, category_dict[key]['active'], category_dict[key]['passive']])
+        
+    with io.FileIO("active_passive/active_passive.csv", "w") as file:   
+        w = csv.writer(file, )  
+        w.writerow(['Tag', 'active', 'passive'])
+        w.writerows(dict_list)
+        
+def popularSports():
+    print "Find most popular sports"
+    popular_dict = {}
+    #init dict
+    for key in keywords["kind_of_sport"]:
+        popular_dict[key] = 0
+    
+    for key in tag_dict:
+        if key == 'sport' or key == 'sports':
+            for key_word in keywords['kind_of_sport']:
+                    #helper_dict = {k: v for k, v in tag_dict[tag_key].iteritems() if keyword in k}
+                    #print key_word
+                    
+                    if key_word in tag_dict[key].keys():
+                        #print key_word + " in " + key
+                        popular_dict[key_word] += tag_dict[key][key_word]
+    #print popular_dict
+    #print popular_dict
+    with io.FileIO("popularSports/popularSports.csv", "w") as file:   
+        w = csv.writer(file, )
+        w.writerow(['sport', 'mentions'])
+        w.writerows(popular_dict.items())
             
 myConnection = MySQLdb.connect( host=hostname, user=username, passwd=password, db=database )
 #expandTable("other_tags", myConnection)
 #clearDB(myConnection, "workout")
 doQuery(myConnection, "false") #set to true, if you want to write into the DB
-checkOnKeywords(myConnection)
-removeLowValues(50)
-writeCSV()
+#checkOnKeywords(myConnection)
+#removeLowValues(50)
+#writeCSV()
+#writeActivePassive()
 
+popularSports()
 myConnection.close()
 
 
