@@ -1,0 +1,107 @@
+[
+    {
+        "PositiveTweets": 2528, 
+        "hashtag": "runtastic", 
+        "negativeTweets": 22
+    }, 
+    {
+        "PositiveTweets": 8719, 
+        "hashtag": "workout", 
+        "negativeTweets": 2289
+    }, 
+    {
+        "PositiveTweets": 9672, 
+        "hashtag": "running", 
+        "negativeTweets": 2301
+    }, 
+    {
+        "PositiveTweets": 4222, 
+        "hashtag": "gym", 
+        "negativeTweets": 1411
+    }, 
+    {
+        "PositiveTweets": 6375, 
+        "hashtag": "soccer", 
+        "negativeTweets": 1526
+    }, 
+    {
+        "PositiveTweets": 7453, 
+        "hashtag": "baseball", 
+        "negativeTweets": 1693
+    }, 
+    {
+        "PositiveTweets": 32429, 
+        "hashtag": "health", 
+        "negativeTweets": 11981
+    }, 
+    {
+        "PositiveTweets": 8202, 
+        "hashtag": "healthy", 
+        "negativeTweets": 1210
+    }, 
+    {
+        "PositiveTweets": 1960, 
+        "hashtag": "fit", 
+        "negativeTweets": 592
+    }, 
+    {
+        "PositiveTweets": 24673, 
+        "hashtag": "football", 
+        "negativeTweets": 5553
+    }, 
+    {
+        "PositiveTweets": 128, 
+        "hashtag": "handball", 
+        "negativeTweets": 44
+    }, 
+    {
+        "PositiveTweets": 6497, 
+        "hashtag": "tennis", 
+        "negativeTweets": 1898
+    }, 
+    {
+        "PositiveTweets": 2398, 
+        "hashtag": "fitness", 
+        "negativeTweets": 580
+    }, 
+    {
+        "PositiveTweets": 7068, 
+        "hashtag": "sport", 
+        "negativeTweets": 2949
+    }, 
+    {
+        "PositiveTweets": 3783, 
+        "hashtag": "sports", 
+        "negativeTweets": 1251
+    }, 
+    {
+        "PositiveTweets": 97, 
+        "hashtag": "Sporty", 
+        "negativeTweets": 7
+    }, 
+    {
+        "PositiveTweets": 59, 
+        "hashtag": "nba", 
+        "negativeTweets": 12
+    }, 
+    {
+        "PositiveTweets": 0, 
+        "hashtag": "PlayingBasketball", 
+        "negativeTweets": 0
+    }, 
+    {
+        "PositiveTweets": 1, 
+        "hashtag": "playingfootball", 
+        "negativeTweets": 0
+    }, 
+    {
+        "PositiveTweets": 2, 
+        "hashtag": "playingbaseball", 
+        "negativeTweets": 0
+    }, 
+    {
+        "PositiveTweets": 16404, 
+        "hashtag": "yoga", 
+        "negativeTweets": 3216
+    }
+]
